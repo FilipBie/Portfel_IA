@@ -30,7 +30,7 @@ corr34 <- cor(eur, etf)
 iportfolio <- mean(gold)*w1+mean(pzu)*w2+mean(eur)*w3+mean(etf)*w4
 #portfolio risk
 sdp <- ((w1^2*s1^2 + w2^2*s2^2 + w3^2*s3^2 + w4^2*s4^2 + 2*w1*w2*s1*s2*corr12 + 2*w1*w3*s1*s3*corr13 + 2*w1*w4*s1*s4*corr14 + 
-          2*w2*w3*s2*s3*corr23 + 2*w2*w4*s2*s4*corr24 + 2*w3*w4*s3*s4*corr34)^0.5)
+           2*w2*w3*s2*s3*corr23 + 2*w2*w4*s2*s4*corr24 + 2*w3*w4*s3*s4*corr34)^0.5)
 #calculating effectivness
 rf <- 0.0
 sharp <- (iportfolio-rf)/sdp
