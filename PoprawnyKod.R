@@ -32,7 +32,7 @@ iportfolio <- mean(gold)*w1+mean(pzu)*w2+mean(eur)*w3+mean(etf)*w4
 sdp <- ((w1^2*s1^2 + w2^2*s2^2 + w3^2*s3^2 + w4^2*s4^2 + 2*w1*w2*s1*s2*corr12 + 2*w1*w3*s1*s3*corr13 + 2*w1*w4*s1*s4*corr14 + 
            2*w2*w3*s2*s3*corr23 + 2*w2*w4*s2*s4*corr24 + 2*w3*w4*s3*s4*corr34)^0.5)
 #calculating effectivness
-rf <- 0.0
+rf <- 0.01*mean(pzu) # zmienić na 0.01 razy średnie PZU
 sharp <- (iportfolio-rf)/sdp
 #preparing df with results
 data <- cbind(w1, w2, w3, w4, iportfolio, sdp, sharp)
@@ -51,20 +51,42 @@ results <- cbind(rbind(min.risk, max.effectivness, max.ip, max.w1, max.w2, max.w
 results
 write.csv(x=results, file = "results.csv", row.names=FALSE)
 #creating and saving OS
-plot(sdp, iportfolio, type= "p", col = "red")
+# Zakresy osi X i Y z dodatkowym marginesem
+x_range <- c(0, max(sdp) * 1.2)  # Zakres dla osi X z dodatkową przestrzenią
+y_range <- c(0, max(iportfolio) * 1.2)  # Zakres dla osi Y z dodatkową przestrzenią
 
-title(main="Opportunity set for four risky assets without SS")
-points(min.risk$sdp, min.risk$iportfolio, pch=19, col="green")
-points(max.effectivness$sdp, max.effectivness$iportfolio, pch=19, col="blue")
-points(max.ip$sdp, max.ip$iportfolio, pch=19, col="yellow")
-points(max.w1$sdp, max.w1$iportfolio, pch=19, col="black")
-points(max.w2$sdp, max.w2$iportfolio, pch=19, col="black")
-points(max.w3$sdp, max.w3$iportfolio, pch=19, col="black")
-points(max.w4$sdp, max.w4$iportfolio, pch=19, col="black")
-legend(legend = c("Opportunity set without SS", "Minimum risk portfolio", "Maximum efficiency portfolio", "Maximum RoR portfolio", 
-                  "One-element portfolio"), 
-       pch = c(19, 19, 19, 19, 19), 
-       col = c("red", "green", "blue", "yellow", "black"), 
-       "right")
-dev.copy(png, filename="plot.png")
-dev.off ()
+# Tworzenie Opportunity Set i ustawienie zakresu osi
+plot(sdp, iportfolio, type = "p", col = "red", pch = 16, cex = 1.5,
+     main = "Opportunity set for four risky assets without SS",
+     xlab = "Ryzyko portfela (sdp)", ylab = "Stopa zwrotu portfela (iportfolio)", 
+     cex.lab = 1.2, cex.main = 1.4, xlim = x_range, ylim = y_range)
+
+# Dodanie kratki (grid) dla lepszej widoczności
+grid(nx = NULL, ny = NULL, col = "lightgray", lty = "dotted")
+
+# Dodanie różnych punktów oraz zwiększenie ich rozmiarów
+points(min.risk$sdp, min.risk$iportfolio, pch = 19, col = "green", cex = 2)  # Minimalne ryzyko
+points(max.effectivness$sdp, max.effectivness$iportfolio, pch = 19, col = "blue", cex = 2)  # Maksymalna efektywność
+points(max.ip$sdp, max.ip$iportfolio, pch = 19, col = "yellow", cex = 2)  # Maksymalny zwrot
+points(max.w1$sdp, max.w1$iportfolio, pch = 19, col = "black", cex = 1.5)  # Waga 1
+points(max.w2$sdp, max.w2$iportfolio, pch = 19, col = "black", cex = 1.5)  # Waga 2
+points(max.w3$sdp, max.w3$iportfolio, pch = 19, col = "black", cex = 1.5)  # Waga 3
+points(max.w4$sdp, max.w4$iportfolio, pch = 19, col = "black", cex = 1.5)  # Waga 4
+
+# Dodanie punktu oznaczającego minimalne ryzyko (0.01) na wykresie
+points(0.01, min.risk$iportfolio, pch = 19, col = "purple", cex = 2)
+text(0.01, min.risk$iportfolio, labels = "Minimalne ryzyko (0.01)", pos = 3, col = "purple")
+
+# Dodanie legendy z większą czcionką i rozmiarami punktów
+legend("right", legend = c("Opportunity set without SS", "Minimum risk portfolio", 
+                           "Maximum efficiency portfolio", "Maximum RoR portfolio", 
+                           "One-element portfolio", "Minimalne ryzyko (0.01)"), 
+       pch = c(19, 19, 19, 19, 19, 19), 
+       col = c("red", "green", "blue", "yellow", "black", "purple"), 
+       pt.cex = 1.5,  # Rozmiar punktów w legendzie
+       cex = 1.2)     # Wielkość tekstu w legendzie
+
+# Zapisanie wykresu jako pliku PNG
+dev.copy(png, filename = "plot_with_min_risk_point.png")
+dev.off()
+
